@@ -3728,6 +3728,155 @@
 			"response": []
 		},
 		{
+			"name": "account-list-details-count Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d68940b6-cd0e-4292-a92a-0053b1058683",
+						"exec": [
+							"pm.test(\"Response time is within 50ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(50); // Ensuring it is below 190ms\r",
+							"});\r",
+							"// Check if the response status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Check if response body is in JSON format\r",
+							"pm.test(\"Response body is valid JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// Parse response body\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"// Validate the structure of the response\r",
+							"pm.test(\"Verify response structure\", function () {\r",
+							"    pm.expect(jsonData).to.have.property(\"status\");\r",
+							"    pm.expect(jsonData.status).to.have.property(\"statusCode\", 200);\r",
+							"    pm.expect(jsonData.status).to.have.property(\"requestId\").that.is.a(\"string\").and.not.empty;\r",
+							"    pm.expect(jsonData.status).to.have.property(\"message\", \"Success\");\r",
+							"});\r",
+							"\r",
+							"// Validate data object exists\r",
+							"pm.test(\"Verify data object exists\", function () {\r",
+							"    pm.expect(jsonData).to.have.property(\"data\");\r",
+							"    pm.expect(jsonData.data).to.be.an(\"array\"); // Assuming the data should be an array\r",
+							"});\r",
+							"\r",
+							"// Validate pagination object\r",
+							"pm.test(\"Verify pagination structure\", function () {\r",
+							"    pm.expect(jsonData).to.have.property(\"pagination\");\r",
+							"    pm.expect(jsonData.pagination).to.have.property(\"pageIndex\", 1);\r",
+							"    pm.expect(jsonData.pagination).to.have.property(\"pageSize\", 10);\r",
+							"    pm.expect(jsonData.pagination).to.have.property(\"totalPages\").that.is.a(\"number\");\r",
+							"    pm.expect(jsonData.pagination).to.have.property(\"totalItems\").that.is.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"// Validate searchKeyword is an empty string in the response (optional if it's included in the response)\r",
+							"pm.test(\"Verify searchKeyword is empty\", function () {\r",
+							"    pm.expect(jsonData.data).to.have.property(\"searchKeyword\", \"\");\r",
+							"});\r",
+							"// Negative Tests (Ensure Expected Errors are Handled Properly)\r",
+							"\r",
+							"// Unauthorized Access (403)\r",
+							"pm.test(\"Unauthorized access should return 403 with correct message\", function () {\r",
+							"    if (pm.response.code === 403) {\r",
+							"        var jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property(\"message\");\r",
+							"        pm.expect(jsonData.message).to.include(\"not authorized\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Invalid Authentication (401)\r",
+							"pm.test(\"Invalid authentication should return 401\", function () {\r",
+							"    if (pm.response.code === 401) {\r",
+							"        pm.expect(pm.response.code).to.equal(401);\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Missing Required Fields (400)\r",
+							"pm.test(\"Missing required fields should return 400 with correct message\", function () {\r",
+							"    if (pm.response.code === 400) {\r",
+							"        var jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property(\"message\");\r",
+							"        pm.expect(jsonData.message).to.include(\"missing required\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Invalid Data Format (400)\r",
+							"pm.test(\"Invalid data format should return 400 with appropriate message\", function () {\r",
+							"    if (pm.response.code === 400) {\r",
+							"        var jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property(\"message\");\r",
+							"        pm.expect(jsonData.message).to.include(\"Invalid format\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Non-existent Resource (404)\r",
+							"pm.test(\"Non-existent resource should return 404 with correct message\", function () {\r",
+							"    if (pm.response.code === 404) {\r",
+							"        var jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property(\"message\");\r",
+							"        pm.expect(jsonData.message).to.include(\"not found\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Server Error (500)\r",
+							"pm.test(\"Server error should return 500 with appropriate message\", function () {\r",
+							"    if (pm.response.code === 500) {\r",
+							"        var jsonData = pm.response.json();\r",
+							"        pm.expect(jsonData).to.have.property(\"message\");\r",
+							"        pm.expect(jsonData.message).to.include(\"internal server error\");\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"id": "40814892-710cbd12-57a2-4049-bdbe-95dbefe0316e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"accountListId\": 561,\r\n        \"filter\": \"ALL\",\r\n        \"searchKeyword\": \"\"\r\n    },\r\n    \"pagination\": {\r\n        \"pageIndex\": 1,\r\n        \"pageSize\": 10\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}customer-list/v1/account-list/account-list-details-count",
+					"host": [
+						"{{baseUrl}}customer-list"
+					],
+					"path": [
+						"v1",
+						"account-list",
+						"account-list-details-count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "account-list-dashboard",
 			"event": [
 				{
